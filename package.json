@@ -1,0 +1,24 @@
+{
+  "name": "twitter-weibo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zijing2/twitter-weibo.git"
+  },
+  "author": "Zijing Huang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zijing2/twitter-weibo/issues"
+  },
+  "homepage": "https://github.com/zijing2/twitter-weibo#readme",
+  "dependencies": {
+    "google-translate-api": "^2.2.2",
+    "oauth": "^0.9.15"
+  }
+}
