@@ -90,3 +90,24 @@ Log collection is used to record the information about the status of tasks.
 | stime | string | when do we exec the task |
 | status | string | success or fail |
 
+
+##WeiboAuth
+Store weibo access_token which is used to send weibo
+
+```
+{
+    "_id" : ObjectId("58ee81e8bbb3bea68b8ee18e"),
+    "access_token" : "2.00AHTjwBVs5LQCf805b7024fXNDMwC",
+    "remind_in" : "157679999",
+    "expires_in" : 157679999,
+    "uid" : "1783996990"
+}	
+```
+| Name        | Type           | Description  |
+| ----------- | -------------- | ------------ |
+| _id  | string | identify specific task|
+| access_token | string | access_token for weibo user |
+| expires_in | string |use this time to refresh token |
+| uid | string | weibo user id |
+
+

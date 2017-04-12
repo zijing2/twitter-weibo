@@ -22,7 +22,7 @@
     "cron": "^1.2.1",
     "crypto": "0.0.3",
     "express": "^4.15.2",
-    "express-session": "^1.15.1",
+    "express-session": "^1.15.2",
     "fs": "0.0.1-security",
     "google-translate": "^2.0.4",
     "google-translate-api": "^2.2.2",

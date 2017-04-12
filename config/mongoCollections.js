@@ -20,4 +20,5 @@ let getCollectionFn = (collection) => {
 module.exports = {
     task: getCollectionFn("Task"),
     log: getCollectionFn("Log"),
+    weibo: getCollectionFn("WeiboAuth")
 };

@@ -1,5 +1,7 @@
 const taskData = require("./task");
+const weiboData = require("./weibo");
 
 module.exports = {
-    task: taskData
+    task: taskData,
+    weibo: weiboData
 };

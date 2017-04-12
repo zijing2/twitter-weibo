@@ -49,6 +49,8 @@ const SinaWeibo = require('node-sina-weibo');
 // }
 
 
+//Weibo Auth
+
 // var OAuth2 = require('weibo-oauth2');
 // var options = {
 //   "key": "2071404283",
@@ -70,9 +72,10 @@ const SinaWeibo = require('node-sina-weibo');
 
 // app.get('/callback', function(req, res) {
 //   var code = req.query.code;
+//   console.log(code);
 //   oauth2.getAccessToken(code, function(err, ret) {
-//       console.log(req.session);
-//       var session = require('express-session')
+//       console.log(ret);
+//       //var session = require('express-session')
 
 //         // session.maxAge = ret.expires_in * 1000;
 //         // session.access_token = ret.access_token;
@@ -88,12 +91,17 @@ const SinaWeibo = require('node-sina-weibo');
 // });
 
 
+var weibo = new SinaWeibo('2071404283', 'cdf13696b698ef6751ad2452c3deb887', "2.00U_jJmGVs5LQCb3c505ccff8z2LME");
+    weibo.UPLOAD('statuses/upload',
+        { status:'test!!' }, { pic:'/Applications/XAMPP/xamppfiles/share/doc/libxml2-2.8.0/html/tutorial/images/callouts/1.png' }, function (err, resultInJson, response) {
+            console.log(resultInJson);
+            if (err) return callback(err);
+            // do something with resultInJson
+        }
+    );
+
 // app.listen(3000, () => {
 //     console.log("We've now got a server!");
 //     console.log("Your routes will be running on http://localhost:3000");
 // });
 
-const data = require("./data");
-const task = data.task;
-
-task.getAllTask().then((re)=>{console.log(re);})
