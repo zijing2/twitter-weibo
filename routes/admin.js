@@ -4,6 +4,10 @@ var passport = require('passport');
 const data = require("../data");
 const task = data.task;
 
+const weiboCron = require("../cron/postWeibo.js");
+
+
+
 
 router.get("/login", (req, res) => {
         var flash = req.flash();
@@ -22,6 +26,58 @@ router.post("/login", passport.authenticate('localadmin', {
 }));
 
 router.all('/*', isLoggedIn);
+
+router.get("/deTask/:Tid", (req, res) => {
+        let task_id = req.params.Tid;
+        console.log("task id");
+        console.log(task_id);
+        return task.deleteTask(task_id).then((deleteRes) => {
+                res.redirect('/');
+        });
+
+});
+
+router.get("/pushSingleTask/:tasknum/:tweetnum", (req, res) => {
+        let tasknum = req.params.tasknum;
+        let tweetnum = req.params.tweetnum;
+        return task.getAllTask().then((task_list) =>{
+                let wid = task_list[tasknum].weibo_userid;
+                let text = task_list[tasknum].ori_tweet[tweetnum].text;
+                let twitter_username = task_list[tasknum].twitter_username;
+                let weibo_userid = task_list[tasknum].weibo_userid;
+                return weiboCron.postSingleWeibo(wid, text)
+                .then((result)=>{
+                return task.insertLog(task_list[tasknum].ori_tweet[tweetnum], weibo_userid, twitter_username, "success");
+                }).then((postresult) =>{
+                let deleteURL = '/admin/deTask/' + task_list[tasknum].ori_tweet[tweetnum].id_str;
+                console.log(deleteURL);
+                return res.redirect(deleteURL);
+                });
+        }).catch((e) =>{
+                console.log(e);
+
+        });
+        // return task.getAllTask().then((task) => {
+        //         let wid = task[tasknum].weibo_userid;
+        //         let text = task[tasknum].ori_tweet[tweetnum].text;
+        //         weiboCron.postSingleWeibo(wid, text).then((result) => {
+        //                 console.log(result);
+        //                 return task.insertLog(task[tasknum].ori_tweet[tweetnum],"success").then((result) => {
+        //                         let deleteURL = "/deTask/" + task[tasknum].weibo_userid;
+        //                         res.redirect(deleteURL);
+        //                 });
+                
+        //         }).catch((e) => {
+        //                 console.log(result);  
+        //                 return task.insertLog(task[tasknum].ori_tweet[tweetnum],"fail");
+        //         });
+
+        // });
+                
+})
+
+
+
 router.get("/", (req, res) => {
         return task.getAllTask().then((task) => {
                 var task_list = [];
@@ -30,15 +86,19 @@ router.get("/", (req, res) => {
                         for(var j in task[i].ori_tweet){
                                 task_list.push({
                                         "task_id" : task[i]._id,
+                                        "tweet_id" : task[i].ori_tweet[j].id_str,
                                         "twitter_username" : task[i].twitter_username,
                                         "weibo_userid" : task[i].weibo_userid,
                                         "ori_tweet" : task[i].ori_tweet[j].text,
                                         "ori_create_at" : task[i].ori_tweet[j].created_at,
-                                        "standBy" : task[i].standBy[j].text
+                                        "tweet_text" : task[i].ori_tweet[j].text,
+                                        "standBy" : task[i].standBy[j].text,
+                                        "task_num":i,
+                                        "tweet_num":j
                                 });
                         }
                 }
-                console.log(task_list[0]);
+                //console.log(task_list[0]);
                 var data = {
                         "layout": "",
                         "task": task_list,
@@ -57,6 +117,7 @@ router.get("/task", (req, res) => {
                         for(var j in task[i].ori_tweet){
                                 task_list.push({
                                         "task_id" : task[i]._id,
+                                        "tweet_id" : task[i].ori_tweet[j]._id,
                                         "twitter_username" : task[i].twitter_username,
                                         "weibo_userid" : task[i].weibo_userid,
                                         "ori_tweet" : task[i].ori_tweet[j].text,
@@ -65,7 +126,7 @@ router.get("/task", (req, res) => {
                                 });
                         }
                 }
-                console.log(task_list[0]);
+                //console.log(task_list[0]);
                 var data = {
                         "layout": "",
                         "task": task_list,
@@ -75,6 +136,7 @@ router.get("/task", (req, res) => {
 
         });
 });
+
 
 
 // router.post("/newproduct", (req, res) => {

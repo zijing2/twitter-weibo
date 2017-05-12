@@ -36,8 +36,10 @@ function postWeibo(access_token, text){
             weibo.POST('statuses/update',
                 //{ status: text }, { pic:'/Applications/XAMPP/xamppfiles/share/doc/libxml2-2.8.0/html/tutorial/images/callouts/1.png' }, function (err, resultInJson, response) {
                 { status: text },  function (err, resultInJson, response) {
+                    console.log("resultInJson");
                     console.log(resultInJson);
                     if (err){
+                        console.log("resultInJson");
                         console.log(resultInJson);
                         console.log(err);
                     } 

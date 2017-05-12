@@ -19,9 +19,26 @@ let exportedMethods = {
             } catch (e) {
                 console.log(e);
             }
-        }
-        
-    }
+        }        
+    },
+    async postSingleWeibo(userId, text){
+         try {
+                let response = await nrpSender.sendMessage({
+                    redis: redisConnection,
+                    eventName: "post-single-weibo",
+                    data: {
+                        //message: req.params.id
+                        "weiboid": userId,
+                        "text": text
+                    }
+                });
+                console.log("post response");
+                console.log(response);
+            } catch (e) {
+                console.log(e);
+            }
+        } 
+
 }
 
 module.exports = exportedMethods;
