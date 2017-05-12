@@ -59,6 +59,48 @@ redisConnection.on('post-weibo:request:*',async (message, channel) => {
     });
 });
 
+
+redisConnection.on('post-single-weibo:request:*',async (message, channel) => {
+    let requestId = message.requestId;
+    let eventName = message.eventName;
+
+    // let nameText = message.data.name;
+    // let keyText = message.data.key;
+    //get weiboid
+    let messageText = message.data.message;
+    let successEvent = `${eventName}:success:${requestId}`;
+    var weiboid = message.data.weiboid;
+    var auth = await weibo.getAuthByweiboid(weiboid);
+    //console.log(tasks);
+        //await postWeibo(auth[0].access_token, tasks[0].standBy[i].text);
+        //await postWeibo("2.00AHTjwBVs5LQCf805b7024fXNDMwC", tasks[0].standBy[i].text);
+        try {
+                let response = await nrpSender.sendMessage({
+                    redis: redisConnection,
+                    eventName: "post-weibo-api",
+                    data: {
+                        //message: req.params.id
+                        //"access_token" : "2.00AHTjwBVs5LQCf805b7024fXNDMwC",
+                        "access_token" : auth[0].access_token,
+                        "text": message.data.text,
+                    }
+                });
+                console.log("worker-single post response");
+                console.log(response);
+            } catch (e) {
+                console.log(e,123123);
+            }
+    var data = {
+        message : messageText,
+    }
+   
+    redisConnection.emit(successEvent, {
+        requestId: requestId,
+        data:data,
+        eventName: eventName
+    });
+});
+
 function pause(milliseconds) {
 	var dt = new Date();
 	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }

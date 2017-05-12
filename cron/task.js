@@ -7,6 +7,6 @@ var cronJob = require("cron").CronJob;
 //         //your job code here  
 // }, null, true, 'America/New_York'); 
 
-// tweetCron.getTweet();
+tweetCron.getTweet();
 
 weiboCron.postWeibo();
