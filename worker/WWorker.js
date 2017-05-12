@@ -45,7 +45,7 @@ redisConnection.on('post-weibo:request:*',async (message, channel) => {
                 console.log(e,123123);
             }
         //10 sec
-        pause(20000);
+        pause(40000);
     }
     
     var data = {
