@@ -39,23 +39,32 @@ let exportedMethods = {
              return taskCollection.find({"weibo_userid": weiboid}).toArray();
          }).catch((err)=>{console.log(err)});
     },
-    insertTask(twitter_username, weibo_userid, tweets){
-        var newTask = {
-            "twitter_username": twitter_username,
-            "weibo_userid": weibo_userid,
-            "ori_tweet": tweets,
-            "standBy": tweets
-        };
-        return task().then((taskCollection) => {
-            return taskCollection.insertOne(newTask)
-            .then((newInsertInformation) => {
-                return newInsertInformation.insertedId;
-            })
-            .then((newId) => {
-                console.log(newId);
-                //return this.getOrderByOid(newId);
-            });  
-        });
+    async insertTask(twitter_username, weibo_userid, tweets){
+    return await this.getLastTweetByUser(twitter_username).then(async (result)=>{
+           if(result==null){
+                 var newTask = {
+                    "twitter_username": twitter_username,
+                    "weibo_userid": weibo_userid,
+                    "ori_tweet": tweets,
+                    "standBy": tweets
+                };
+                return await task().then(async (taskCollection) => {
+                    return await taskCollection.insertOne(newTask)
+                    .then( async (newInsertInformation) => {
+                        return await newInsertInformation.insertedId;
+                    })
+                    .then((newId) => {
+                        console.log(newId);
+                        //return this.getOrderByOid(newId);
+                    });  
+                });
+           }else{
+                return await task().then(async (taskCollection) => {
+                    return await taskCollection.update({"twitter_username" : twitter_username},{$set:{"ori_tweet":tweets.concat(result.ori_tweet)}});
+                })
+           }
+       });
+       
     },
     insertLog(tweets, weibo_userid, twitter_username, status) {
         let nowTime = new Date();
@@ -76,7 +85,15 @@ let exportedMethods = {
                 console.log(newId);
             });
         });
+    },
+    getLastTweetByUser(nickname){
+        return task().then((taskCollection) => {
+            return taskCollection.findOne({"twitter_username" : nickname});
+        }).catch((err) => {
+            console.log(err);
+        })
     }
+    
 }
 
 module.exports = exportedMethods;    

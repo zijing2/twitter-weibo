@@ -5,6 +5,7 @@ const SinaWeibo = require('node-sina-weibo');
 var oauth_config = require('../config/oauth');
 const data = require("../data");
 const task = data.task;
+const log = data.log;
 const weibo = data.weibo;
 var twitter_weibo_bind = require('../config/tweiber');
 const redisConnection = require("../lib/redisMSQ/redis-connection");
@@ -39,20 +40,20 @@ redisConnection.on('get-tweets:request:*',async (message, channel) => {
             }
         };
 
-        https.get(options, function (result) {
+        https.get(options,async function (result) {
             var buffer = '';
             result.setEncoding('utf8');
             result.on('data',function (data) {
                 buffer += data;
             });
-            result.on('end', function () {
+            result.on('end',async function () {
                 var tweets = JSON.parse(buffer);
-                console.log(tweets); // the tweets!
+                //console.log(tweets); // the tweets!
                 // for(var i=0;i<tweets.length;i++){
                 //     //console.log(message.data.nickname+":"+tweets[i].text);
                 // }
-                
-                task.insertTask(message.data.nickname, twitter_weibo_bind[message.data.nickname], tweets).then((re)=>{console.log(re);})
+                var incre_tweets = await chooseIncrementTwitter(tweets,messageText);
+                await task.insertTask(message.data.nickname, twitter_weibo_bind[message.data.nickname], incre_tweets).then((re)=>{})
                 //console.log(message.data);
                 var data = {
                     message : messageText,
@@ -78,6 +79,48 @@ redisConnection.on('get-tweets:request:*',async (message, channel) => {
 
     
 });
+
+//fetch the last tweet in task table(if task table is empty, then go to log table),
+//compare this tweet to tweets we get one by one, 
+//until 1.find a tweet with the same id or 2.no more tweet to compare
+//the tweets we just compare are the increment, similar to merge sort
+async function chooseIncrementTwitter(tweets,nickname){
+    var increment_arr = [];
+    return await task.getLastTweetByUser(nickname).then(async (result1)=>{
+        if(result1==null){
+          return await log.getLastTweetByUser(nickname).then(async (result2)=>{
+                if(result2==null){
+                    return tweets;
+                }else{
+                    var last_tweet_id = result2.ori_tweet[0].id_str;
+                    for(var i in tweets){
+                        if(last_tweet_id != tweets[i].id_str){
+                            increment_arr.push(tweets[i]);
+                        }else{
+                            return increment_arr;
+                        }
+                    }
+                }
+            });
+        }else{
+            if(result1.ori_tweet[0]==undefined){
+                return tweets;
+            }else{
+                var last_tweet_id = result1.ori_tweet[0].id_str;
+                for(var i in tweets){
+                    if(last_tweet_id != tweets[i].id_str){
+                        increment_arr.push(tweets[i]);
+                    }else{
+                        break;
+                    }
+                }
+                return increment_arr;
+            }
+        }
+
+    });
+
+}
 
 // //post weibo task
 // redisConnection.on('post-weibo:request:*',async (message, channel) => {
