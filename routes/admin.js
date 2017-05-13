@@ -77,7 +77,6 @@ router.get("/pushSingleTask/:tasknum/:tweetnum", (req, res) => {
 })
 
 
-
 router.get("/", (req, res) => {
         return task.getAllTask().then((task) => {
                 var task_list = [];
@@ -92,6 +91,7 @@ router.get("/", (req, res) => {
                                         "ori_tweet" : task[i].ori_tweet[j].text,
                                         "ori_create_at" : task[i].ori_tweet[j].created_at,
                                         "tweet_text" : task[i].ori_tweet[j].text,
+                                        "translate" : task[i].ori_tweet[j].translate,
                                         "standBy" : task[i].standBy[j].text,
                                         "task_num":i,
                                         "tweet_num":j

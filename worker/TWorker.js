@@ -10,6 +10,7 @@ const weibo = data.weibo;
 var twitter_weibo_bind = require('../config/tweiber');
 const redisConnection = require("../lib/redisMSQ/redis-connection");
 const nrpSender = require("../lib/redisMSQ/nrp-sender-shim");
+const translate = require('translate-api');
 
 
 //var request = require('sync-request');
@@ -53,6 +54,13 @@ redisConnection.on('get-tweets:request:*',async (message, channel) => {
                 //     //console.log(message.data.nickname+":"+tweets[i].text);
                 // }
                 var incre_tweets = await chooseIncrementTwitter(tweets,messageText);
+                for(var i in incre_tweets){
+                    let transText = incre_tweets[i].text;
+                    var t =  await translate.getText(transText,{to: 'zh-CN'}).then(async function(text){
+                             return await text;
+                        }).catch((err)=>{console.log(err);});
+                    incre_tweets[i]['translate'] = t.text;
+                }
                 await task.insertTask(message.data.nickname, twitter_weibo_bind[message.data.nickname], incre_tweets).then((re)=>{})
                 //console.log(message.data);
                 var data = {
