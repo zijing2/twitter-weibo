@@ -18,6 +18,7 @@ const translate = require('translate-api');
 
 //get tweet task
 redisConnection.on('get-tweets:request:*',async (message, channel) => {
+
     let requestId = message.requestId;
     let eventName = message.eventName;
 
@@ -100,7 +101,7 @@ async function chooseIncrementTwitter(tweets,nickname){
                 if(result2==null){
                     return tweets;
                 }else{
-                    var last_tweet_id = result2.ori_tweet[0].id_str;
+                    var last_tweet_id = result2.ori_tweet.id_str;
                     for(var i in tweets){
                         if(last_tweet_id != tweets[i].id_str){
                             increment_arr.push(tweets[i]);
@@ -112,7 +113,20 @@ async function chooseIncrementTwitter(tweets,nickname){
             });
         }else{
             if(result1.ori_tweet[0]==undefined){
-                return tweets;
+                return await log.getLastTweetByUser(nickname).then(async (result2)=>{
+                    if(result2==null){
+                        return tweets;
+                    }else{
+                        var last_tweet_id = result2.ori_tweet.id_str;
+                        for(var i in tweets){
+                            if(last_tweet_id != tweets[i].id_str){
+                                increment_arr.push(tweets[i]);
+                            }else{
+                                return increment_arr;
+                            }
+                        }
+                    }
+                });
             }else{
                 var last_tweet_id = result1.ori_tweet[0].id_str;
                 for(var i in tweets){
