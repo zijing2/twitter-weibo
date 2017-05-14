@@ -68,9 +68,9 @@ let exportedMethods = {
        
     },
      
-    getLastTweetByUser(nickname){
-        return task().then((taskCollection) => {
-            return taskCollection.findOne({"twitter_username" : nickname});
+    async getLastTweetByUser(nickname){
+        return await task().then(async(taskCollection) => {
+            return await taskCollection.findOne({"twitter_username" : nickname});
         }).catch((err) => {
             console.log(err);
         })
