@@ -73,27 +73,23 @@
                     
                   <tr>
                     <td><a href="" class="white-text templatemo-sort-by"># <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">UserName <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">Gender <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">Date Of Birth <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">Address <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">Phone <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">Email <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">weiboId <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">twitterName <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">accessTokenForWeibo <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">expiresIn <span class="caret"></span></a></td>
                     <td>Edit</td>
                     <td>Delete</td>
                   </tr>
                  
                 </thead>
                 <tbody>
-                    {{#each users}}
+                    {{#each weiboAuth}}
                   <tr>
                     <td>{{_id}}</td>
-                    <td>{{profile.name}}</td>
-                    <td>{{profile.gender}}</td>
-                    <td>{{profile.birthday}}</td>
-                    <td>{{profile.address}}</td>
-                    <td>{{profile.phone}}</td>
-                    <td>{{profile.email}}</td>
+                    <td>{{uid}}</td>
+                    <td>{{twitter_name}}</td>
+                    <td>{{access_token}}</td>
+                    <td>{{expires_in}}</td>
                     <td><a href="" class="templatemo-edit-btn">Edit</a></td>
                     <td><a href="/admin/deUser/{{_id}}" class="templatemo-link">Delete</a></td>
                   </tr>
@@ -101,47 +97,7 @@
                 </tbody>
               </table>  
               {{/if}}
-              {{#if is_product}}
-              <table class="table table-striped table-bordered templatemo-user-table">
-                <thead>
-                    
-                  <tr>
-                    <td><a href="" class="white-text templatemo-sort-by"># <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">Type <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">name <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">img <span class="caret"></span></a></td>
-                    <td>Edit</td>
-                    <td>Delete</td>
-                  </tr>
-                 
-                </thead>
-                <tbody>
-                    {{#each products}}
-                  <tr>
-                    <td>{{_id}}</td>
-                    <td>{{type}}</td>
-                    <td>{{name}}</td>
-                    <td>{{img}}</td>
-                    <td><a href="" class="templatemo-edit-btn">Edit</a></td>
-                    <td><a href="/admin/deProduct/{{_id}}" class="templatemo-link">Delete</a></td></td>
-                  </tr>
-                   {{/each}}
-                </tbody>
-              </table> 
-              <form class="form-horizontal" role="form" action="/admin/newproduct" method="POST" id="product_submit_button">
-              <select class="form-control" name="type" placeholder="select the type" >
-                  <option value="theme">theme</option>
-                  <option value="cake">cake</option>
-                  <option value="gift">gift</option>
-                  <option value="album">album</option>
-              </select>
-              <input class="form-control" name="name" type="text" placeholder="input product name" id="product_name_input">
-              <input class="form-control" name="img"  type="file" placeholder="get your image" />  
-              <button type="submit" id="addProduct" data-loading-text="Loading..." class="btn btn-primary btn-block" autocomplete="off">Add</button>
-              </form>
-              
-
-              {{/if}}   
+                
               {{#if is_task}}
                <table class="table table-striped table-bordered templatemo-user-table">
                 <thead>
@@ -153,7 +109,7 @@
                     <td><a href="" class="white-text templatemo-sort-by">ori_text <span class="caret"></span></a></td>
                     <td><a href="" class="white-text templatemo-sort-by">ori_create_at <span class="caret"></span></a></td>
                     <td><a href="" class="white-text templatemo-sort-by">standby_text <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">translate <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">translation <span class="caret"></span></a></td>
                     <td>Push</td>
                     <td>Edit</td>
                     <td>Delete</td>
@@ -172,41 +128,40 @@
                     <td>{{translate}}</td>
                     <td><a href="/admin/pushSingleTask/{{task_num}}/{{tweet_num}}" class="templatemo-edit-btn">Push</a></td>
                     <td><a href="" class="templatemo-edit-btn">Edit</a></td>
-                    <td><a href="/admin/deTask/{{tweet_id}}" class="templatemo-edit-btn">Delete</a></td>
+                    <td><a href="/admin/deTask/{{task_id}}/{{tweet_id}}" class="templatemo-edit-btn">Delete</a></td>
                   </tr>
                    {{/each}}
                 </tbody>
               </table>  
               {{/if}}
-              {{#if is_pet}}
+
+              {{#if is_log}}
                <table class="table table-striped table-bordered templatemo-user-table">
                 <thead>
                     
                   <tr>
-                    <td><a href="" class="white-text templatemo-sort-by">pet_id<span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">owner_id<span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">name <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">gender <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">birthday <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">breed <span class="caret"></span></a></td>
-                    <td><a href="" class="white-text templatemo-sort-by">hobbies<span class="caret"></span></a></td>
-                    <td>Edit</td>
-                    <td>Delete</td>
+                    <!-- <td><a href="" class="white-text templatemo-sort-by">task_id<span class="caret"></span></a></td> -->
+                    <td><a href="" class="white-text templatemo-sort-by">twitter_username <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">weibo_userid <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">ori_text <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">ori_create_at <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">standby_text <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">translation <span class="caret"></span></a></td>
+                    <td><a href="" class="white-text templatemo-sort-by">status <span class="caret"></span></a></td>
                   </tr>
                  
                 </thead>
                 <tbody>
-                    {{#each pets}}
+                    {{#each log}}
                   <tr>
-                    <td>{{_id}}</td>
-                    <td>{{owner_id}}</td>
-                    <td>{{name}}</td>
-                    <td>{{gender}}</td>
-                    <td>{{birthday}}</td>
-                    <td>{{breed}}</td>
-                    <td>{{hobbies}}</td>
-                    <td><a href="" class="templatemo-edit-btn">Edit</a></td>
-                    <td><a href="/admin/dePet/{{_id}}" class="templatemo-link">Delete</a></td>
+                    <!-- <td>{{task_id}}</td> -->
+                    <td>{{twitter_username}}</td>
+                    <td>{{weibo_userid}}</td>
+                    <td>{{ori_tweet}}</td>
+                    <td>{{ori_create_at}}</td>
+                    <td>{{standBy}}</td>
+                    <td>{{translate}}</td>
+                    <td>{{status}}</td>
                   </tr>
                    {{/each}}
                 </tbody>

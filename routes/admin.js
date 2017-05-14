@@ -3,11 +3,11 @@ const router = express.Router();
 var passport = require('passport');
 const data = require("../data");
 const task = data.task;
+const weiboAuth = data.weibo;
+const log = data.log;
+const tweiber_bind = require("../config/tweiber");
 
 const weiboCron = require("../cron/postWeibo.js");
-
-
-
 
 router.get("/login", (req, res) => {
         var flash = req.flash();
@@ -27,52 +27,33 @@ router.post("/login", passport.authenticate('localadmin', {
 
 router.all('/*', isLoggedIn);
 
-router.get("/deTask/:Tid", (req, res) => {
-        let task_id = req.params.Tid;
+router.get("/deTask/:Taskid/:Tid", (req, res) => {
+        let task_id = req.params.Taskid;
+        let tweet_id = req.params.Tid;
         console.log("task id");
         console.log(task_id);
-        return task.deleteTask(task_id).then((deleteRes) => {
+        return task.deleteTask(tweet_id,task_id).then((deleteRes) => {
                 res.redirect('/');
         });
 
 });
 
-router.get("/pushSingleTask/:tasknum/:tweetnum", (req, res) => {
+router.get("/pushSingleTask/:tasknum/:tweetnum", async(req, res) => {
         let tasknum = req.params.tasknum;
         let tweetnum = req.params.tweetnum;
-        return task.getAllTask().then((task_list) =>{
+        return await task.getAllTask().then(async(task_list) =>{
                 let wid = task_list[tasknum].weibo_userid;
                 let text = task_list[tasknum].ori_tweet[tweetnum].text;
                 let twitter_username = task_list[tasknum].twitter_username;
                 let weibo_userid = task_list[tasknum].weibo_userid;
-                return weiboCron.postSingleWeibo(wid, text)
-                .then((result)=>{
-                return task.insertLog(task_list[tasknum].ori_tweet[tweetnum], weibo_userid, twitter_username, "success");
-                }).then((postresult) =>{
-                let deleteURL = '/admin/deTask/' + task_list[tasknum].ori_tweet[tweetnum].id_str;
-                console.log(deleteURL);
-                return res.redirect(deleteURL);
+                return await weiboCron.postSingleWeibo(wid, task_list[tasknum].standBy[tweetnum], task_list[tasknum]._id.toString(),task_list[tasknum].twitter_username, task_list[tasknum].weibo_userid)
+                .then(async(result)=>{
+                        return await res.redirect("/");
                 });
         }).catch((e) =>{
                 console.log(e);
 
         });
-        // return task.getAllTask().then((task) => {
-        //         let wid = task[tasknum].weibo_userid;
-        //         let text = task[tasknum].ori_tweet[tweetnum].text;
-        //         weiboCron.postSingleWeibo(wid, text).then((result) => {
-        //                 console.log(result);
-        //                 return task.insertLog(task[tasknum].ori_tweet[tweetnum],"success").then((result) => {
-        //                         let deleteURL = "/deTask/" + task[tasknum].weibo_userid;
-        //                         res.redirect(deleteURL);
-        //                 });
-                
-        //         }).catch((e) => {
-        //                 console.log(result);  
-        //                 return task.insertLog(task[tasknum].ori_tweet[tweetnum],"fail");
-        //         });
-
-        // });
                 
 })
 
@@ -80,7 +61,6 @@ router.get("/pushSingleTask/:tasknum/:tweetnum", (req, res) => {
 router.get("/", (req, res) => {
         return task.getAllTask().then((task) => {
                 var task_list = [];
-                var z = 0;
                 for(var i in task){
                         for(var j in task[i].ori_tweet){
                                 task_list.push({
@@ -122,7 +102,11 @@ router.get("/task", (req, res) => {
                                         "weibo_userid" : task[i].weibo_userid,
                                         "ori_tweet" : task[i].ori_tweet[j].text,
                                         "ori_create_at" : task[i].ori_tweet[j].created_at,
-                                        "standBy" : task[i].standBy[j].text
+                                        "tweet_text" : task[i].ori_tweet[j].text,
+                                        "translate" : task[i].ori_tweet[j].translate,
+                                        "standBy" : task[i].standBy[j].text,
+                                        "task_num":i,
+                                        "tweet_num":j
                                 });
                         }
                 }
@@ -137,73 +121,52 @@ router.get("/task", (req, res) => {
         });
 });
 
+router.get("/robot", (req, res) => {
+        return weiboAuth.getAllAuth().then((allWeiboAtuh) => {
+                for(var i in allWeiboAtuh){
+                        for(var j in tweiber_bind){
+                                if(tweiber_bind[j]==allWeiboAtuh[i].uid){
+                                        allWeiboAtuh[i]["twitter_name"] = j;
+                                }
+                        }
+                        
+                }
+                var data = {
+                        "layout": "",
+                        "weiboAuth": allWeiboAtuh,
+                        "is_user": 1
+                };
+                res.render('admin', data);
+        });
+});
 
-
-// router.post("/newproduct", (req, res) => {
-//         var type = req.body.type;
-//         var name = req.body.name;
-//         var img = req.body.img;
-//         console.log(req.body);
-//         product.addProduct(type, name, img).then((productinfo) => {
-//                 res.redirect(req.get('referer'));
-//         }).catch((err) => {
-//                 req.flash('err', err);
-//                 res.redirect('/admin/product');
-//         });
-
-// });
-
-// router.get("/user", (req, res) => {
-//         return user.getAllUsers().then((users) => {
-//                 var data = {
-//                         "layout": "",
-//                         "users": users,
-//                         "is_user": 1
-//                 };
-//                 res.render('admin', data);
-
-//         });
-// });
-
-// router.get("/order", (req, res) => {
-//         return order.getAllOrders().then((orders) => {
-//                 var data = {
-//                         "layout": "",
-//                         "orders": orders,
-//                         "is_order": 1
-//                 };
-//                 console.log(orders);
-//                 res.render('admin', data);
-
-//         });
-// });
-
-// router.get("/pet", (req, res) => {
-//         return user.getAllPets().then((pets) => {
-//                 var data = {
-//                         "layout": "",
-//                         "pets": pets,
-//                         "is_pet": 1
-//                 };
-//                 console.log(pets);
-//                 res.render('admin', data);
-
-//         });
-// });
-
-// router.get("/product", (req, res) => { 
-//         return product.getAllProducts().then((products)=>{
-//                 console.log("11111111111111");
-//                 console.log(products);
-//                 var data = {
-//                 "layout":"",
-//                 "products":products,
-//                 "is_product":1
-//                 };
-//                 res.render('admin',data);
-
-//         });        
-// });
+router.get("/log", (req, res) => {
+        return log.getAllLog().then((log) => {
+                //console.log(log);
+                var log_list = [];
+                for(var i in log){
+                        
+                        log_list.push({
+                                "log_id" : log[i]._id,
+                                "tweet_id" : log[i].ori_tweet.id_str,
+                                "twitter_username" : log[i].twitter_username,
+                                "weibo_userid" : log[i].weibo_userid,
+                                "ori_tweet" : log[i].ori_tweet.text,
+                                "ori_create_at" : log[i].ori_tweet.created_at,
+                                "standBy" : log[i].standBy.text,
+                                "translate" : log[i].standBy.translate,
+                                "status" : log[i].status
+                        });
+                        
+                }
+                var data = {
+                        "layout": "",
+                        "log": log_list,
+                        "is_log": 1
+                };
+                res.render('admin', data);
+        });
+});
 
 router.get('/logout', function (req, res) {
         req.logout();

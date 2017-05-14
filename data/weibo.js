@@ -3,6 +3,11 @@ const mongoCollections = require("../config/mongoCollections");
 const weibo = mongoCollections.weibo;
 
 let exportedMethods = {
+    getAllAuth(){
+        return weibo().then((weiboCollection) => {
+             return weiboCollection.find({}).toArray();
+         }).catch((err)=>{console.log(err)});;
+    },
     getAuthByweiboid(weiboid){
         return weibo().then((weiboCollection) => {
             //console.log(taskCollection.find({}));

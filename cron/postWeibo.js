@@ -21,7 +21,7 @@ let exportedMethods = {
             }
         }        
     },
-    async postSingleWeibo(userId, text){
+    async postSingleWeibo(userId, tweet, task_id, twitter_username, weibo_userid){
          try {
                 let response = await nrpSender.sendMessage({
                     redis: redisConnection,
@@ -29,11 +29,14 @@ let exportedMethods = {
                     data: {
                         //message: req.params.id
                         "weiboid": userId,
-                        "text": text
+                        "text": tweet.text +" 翻译：" + tweet.translate,
+                        "twitter_username": twitter_username,
+                        "weibo_userid": weibo_userid,
+                        "ori_tweet": tweet,
+                        "standBy": tweet,
+                        "task_id": task_id
                     }
                 });
-                console.log("post response");
-                console.log(response);
             } catch (e) {
                 console.log(e);
             }

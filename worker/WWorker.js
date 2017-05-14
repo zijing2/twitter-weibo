@@ -37,12 +37,17 @@ redisConnection.on('post-weibo:request:*',async (message, channel) => {
                         //message: req.params.id
                         //"access_token" : "2.00AHTjwBVs5LQCf805b7024fXNDMwC",
                         "access_token" : auth[0].access_token,
-                        "text": tasks[0].standBy[i].text,
+                        "text": tasks[0].standBy[i].text  + " 翻译：" +  tasks[0].standBy[i].translate,
+                        "twitter_username": tasks[0].twitter_username,
+                        "weibo_userid": tasks[0].weibo_userid,
+                        "ori_tweet": tasks[0].ori_tweet[i],
+                        "standBy": tasks[0].standBy[i],
+                        "task_id": tasks[0]._id
                     }
                 });
                 console.log(response);
             } catch (e) {
-                console.log(e,123123);
+                console.log(e);
             }
         //10 sec
         pause(40000);
@@ -83,12 +88,15 @@ redisConnection.on('post-single-weibo:request:*',async (message, channel) => {
                         //"access_token" : "2.00AHTjwBVs5LQCf805b7024fXNDMwC",
                         "access_token" : auth[0].access_token,
                         "text": message.data.text,
+                        "twitter_username": message.data.twitter_username,
+                        "weibo_userid": message.data.weibo_userid,
+                        "ori_tweet": message.data.ori_tweet,
+                        "task_id": message.data.task_id,
+                        "standBy": message.data.standBy,
                     }
                 });
-                console.log("worker-single post response");
-                console.log(response);
             } catch (e) {
-                console.log(e,123123);
+                console.log(e);
             }
     var data = {
         message : messageText,

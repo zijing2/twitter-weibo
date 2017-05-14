@@ -11,17 +11,17 @@ let exportedMethods = {
              return taskCollection.find({}).toArray();
          }).catch((err)=>{console.log(err)});;
     },
-    deleteTask(tweetid) {
-        return task().then((taskCollection) => {
-            console.log("deleting");
-            return taskCollection.update({},{$pull: {"ori_tweet" : {"id_str" : tweetid}}}).then((result1)=> {
+    async deleteTask(tweetid, task_id) {
+        return await task().then(async(taskCollection) => {
+            var taskid = new ObjectID(task_id)
+            return await taskCollection.update({"_id": taskid},{$pull: {"ori_tweet" : {"id_str" : tweetid}}}).then(async(result1)=> {
                 console.log(result1.result);
-                return taskCollection.update({},{$pull: {"standBy" : {"id_str" : tweetid}}});
-            }).then((result2)=>{
+                return await taskCollection.update({"_id": taskid},{$pull: {"standBy" : {"id_str" : tweetid}}});
+            }).then(async(result2)=>{
                 console.log(result2.result);
             });
         }).catch((err) => {
-            console.log("err");
+            console.log(err);
         });
         
     },
@@ -60,32 +60,14 @@ let exportedMethods = {
                 });
            }else{
                 return await task().then(async (taskCollection) => {
+                    await taskCollection.update({"twitter_username" : twitter_username},{$set:{"standBy":tweets.concat(result.ori_tweet)}});
                     return await taskCollection.update({"twitter_username" : twitter_username},{$set:{"ori_tweet":tweets.concat(result.ori_tweet)}});
                 })
            }
        });
        
     },
-    insertLog(tweets, weibo_userid, twitter_username, status) {
-        let nowTime = new Date();
-        let timeString = nowTime.toString();
-        var newLog = {
-            "twitter_username": twitter_username,
-            "weibo_userid": weibo_userid,
-            "ori_tweet": tweets,
-            "standBy": tweets,
-            "status": status,
-            "stime": timeString
-        };
-        return log().then((logCollection) => {
-            return logCollection.insertOne(newLog)
-            .then((newInsertInformation) => {
-                return newInsertInformation.insertedId;
-            }).then((newId) => {
-                console.log(newId);
-            });
-        });
-    },
+     
     getLastTweetByUser(nickname){
         return task().then((taskCollection) => {
             return taskCollection.findOne({"twitter_username" : nickname});
