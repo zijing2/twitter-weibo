@@ -20,5 +20,7 @@ let getCollectionFn = (collection) => {
 module.exports = {
     task: getCollectionFn("Task"),
     log: getCollectionFn("Log"),
+    slackTask: getCollectionFn("SlackTask"),
+    slackLog: getCollectionFn("slackLog"),
     weibo: getCollectionFn("WeiboAuth")
 };

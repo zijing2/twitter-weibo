@@ -5,7 +5,9 @@ const SinaWeibo = require('node-sina-weibo');
 var oauth_config = require('../config/oauth');
 const data = require("../data");
 const task = data.task;
+const slackTask = data.slackTask;
 const log = data.log;
+const slackLog = data.slackLog;
 const weibo = data.weibo;
 var twitter_weibo_bind = require('../config/tweiber');
 const redisConnection = require("../lib/redisMSQ/redis-connection");
@@ -63,7 +65,20 @@ redisConnection.on('get-tweets:request:*',async (message, channel) => {
                     incre_tweets[i]['translate'] = t.text;
                 }
                 await task.insertTask(message.data.nickname, twitter_weibo_bind[message.data.nickname], incre_tweets).then((re)=>{})
-                //console.log(message.data);
+
+                //slack task
+                incre_tweets = await chooseIncrementTwitterSlack(tweets,messageText);
+                for(var i in incre_tweets){
+                    let transText = incre_tweets[i].text;
+                    var t =  await translate.getText(transText,{to: 'zh-CN'}).then(async function(text){
+                             return await text;
+                        }).catch((err)=>{console.log(err);});
+                    incre_tweets[i]['translate'] = t.text;
+                }
+                await slackTask.insertTask(message.data.nickname, twitter_weibo_bind[message.data.nickname], incre_tweets).then((re)=>{})
+
+
+
                 var data = {
                     message : messageText,
                 }
@@ -114,6 +129,58 @@ async function chooseIncrementTwitter(tweets,nickname){
         }else{
             if(result1.ori_tweet[0]==undefined){
                 return await log.getLastTweetByUser(nickname).then(async (result2)=>{
+                    if(result2==null){
+                        return tweets;
+                    }else{
+                        var last_tweet_id = result2.ori_tweet.id_str;
+                        for(var i in tweets){
+                            if(last_tweet_id != tweets[i].id_str){
+                                increment_arr.push(tweets[i]);
+                            }else{
+                                return increment_arr;
+                            }
+                        }
+                    }
+                });
+            }else{
+                var last_tweet_id = result1.ori_tweet[0].id_str;
+                for(var i in tweets){
+                    if(last_tweet_id != tweets[i].id_str){
+                        increment_arr.push(tweets[i]);
+                    }else{
+                        break;
+                    }
+                }
+                return increment_arr;
+            }
+        }
+
+    });
+
+}
+
+
+async function chooseIncrementTwitterSlack(tweets,nickname){
+    var increment_arr = [];
+    return await slackTask.getLastTweetByUser(nickname).then(async (result1)=>{
+        if(result1==null){
+          return await slackLog.getLastTweetByUser(nickname).then(async (result2)=>{
+                if(result2==null){
+                    return tweets;
+                }else{
+                    var last_tweet_id = result2.ori_tweet.id_str;
+                    for(var i in tweets){
+                        if(last_tweet_id != tweets[i].id_str){
+                            increment_arr.push(tweets[i]);
+                        }else{
+                            return increment_arr;
+                        }
+                    }
+                }
+            });
+        }else{
+            if(result1.ori_tweet[0]==undefined){
+                return await slackLog.getLastTweetByUser(nickname).then(async (result2)=>{
                     if(result2==null){
                         return tweets;
                     }else{

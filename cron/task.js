@@ -1,5 +1,6 @@
 const tweetCron = require("./getTweet");
 const weiboCron = require("./postWeibo");
+const slackCron = require("./postSlack");
 var cronJob = require("cron").CronJob; 
 
 // new cronJob('30 * * * * *', function () {  
@@ -12,6 +13,7 @@ var cronJob = require("cron").CronJob;
 //         //your job code here  
 // }, null, true, 'America/New_York');
 
-tweetCron.getTweet();
+//tweetCron.getTweet();
 
 //weiboCron.postWeibo();
+slackCron.postSlack();
